@@ -19,7 +19,11 @@ class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    //double height = MediaQuery.of(context).size.height;
+    double height = MediaQuery.of(context).size.height;
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final double marginHeight = isPortrait ? height * 0.1 : height * 0.01;
+    double paddingWidth = isPortrait ? 8 : width * 0.1;
 
     // recent rxpense
     List<Expense> recentExpenses = [...expenses];
@@ -50,91 +54,145 @@ class StatisticsScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: Color.fromARGB(255, 232, 242, 255),
         appBar: AppBar(
-          title: Text('Statistics'),
+          backgroundColor: Color.fromARGB(255, 232, 242, 255),
+          foregroundColor: Color(0xFF172B4D),
+          title: Text(
+            'Statistics',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           automaticallyImplyLeading: false,
-          bottom: TabBar(
-            tabs: [
-              Tab(text: 'Category'),
-              Tab(text: 'Recent'),
-            ],
+
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(48),
+
+            child: Container(
+              color: const Color(0xFFF1F6FC),
+
+              child: TabBar(
+                labelColor: Color(0xDD7562D9),
+                unselectedLabelColor: Color(0xFF6B7280),
+                indicatorColor: Color(0xFF7562D9),
+                indicatorWeight: 3,
+                tabs: [
+                  Tab(text: 'Category'),
+                  Tab(text: 'Recent'),
+                ],
+              ),
+            ),
           ),
         ),
 
-        body: TabBarView(
-          children: [
-            //Text('this is category'),
-            Card(
-              margin: EdgeInsets.all(10),
-              child: ListView.builder(
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  final total = categoryTotals[category] ?? 0.0;
-                  final progress = maxCategoryTotal == 0
-                      ? 0.0
-                      : total / maxCategoryTotal;
+        body: SafeArea(
+          child: TabBarView(
+            children: [
+              //Text('this is category'),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  paddingWidth,
+                  10,
+                  paddingWidth,
+                  10,
+                ),
+                child: Card(
+                  color: Colors.white,
+                  shadowColor: Colors.black,
+                  elevation: 2,
+                  margin: EdgeInsets.only(bottom: marginHeight),
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      final total = categoryTotals[category] ?? 0.0;
+                      final progress = maxCategoryTotal == 0
+                          ? 0.0
+                          : total / maxCategoryTotal;
 
-                  return Container(
-                    margin: EdgeInsets.only(
-                      left: width * 0.025,
-                      right: width * 0.025,
-                      top: 8,
-                      bottom: 8,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      return Padding(
+                        padding: EdgeInsets.fromLTRB(12, 10, 12, 10),
+                        child: Column(
                           children: [
-                            Text(
-                              category,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
+                            Row(
+                              children: [
+                                Container(
+                                  height: 42,
+                                  width: 42,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFD9F1F0),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    getCategoryIcon(category),
+                                    color: Color(0xFF258C88),
+                                    size: 22,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    category,
+                                    style: TextStyle(
+                                      color: Color(0xFF173B63),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  CurrencyHelper.format(
+                                    amount: total,
+                                    exchangeRate: exchangeRate,
+                                    quote: selectedCurrency,
+                                  ),
+                                  style: TextStyle(
+                                    color: Color(0xFF258C88),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${CurrencyHelper.convert(amount: total, exchangeRate: exchangeRate).toStringAsFixed(2)}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
+                            SizedBox(height: 8),
+                            LinearProgressIndicator(
+                              value: progress,
+                              backgroundColor: const Color(0xFFE9E1FA),
+                              color: const Color(0xFF7562D9),
+                              minHeight: 7,
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value: progress,
-                          minHeight: 8,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            expenses.isEmpty
-                ? Center(
-                    child: Text(
-                      'No recent expenses',
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: recentExpenses.length,
-                    itemBuilder: (context, index) {
-                      final expense = recentExpenses[index];
-                      return ExpenseCard(
-                        expense: expense,
-                        selectedCurrency: selectedCurrency,
-                        exchangeRate: exchangeRate,
                       );
                     },
                   ),
-          ],
+                ),
+              ),
+
+              expenses.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No recent expenses',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: ListView.builder(
+                        itemCount: recentExpenses.length,
+                        itemBuilder: (context, index) {
+                          final expense = recentExpenses[index];
+                          return ExpenseCard(
+                            expense: expense,
+                            selectedCurrency: selectedCurrency,
+                            exchangeRate: exchangeRate,
+                          );
+                        },
+                      ),
+                    ),
+            ],
+          ),
         ),
       ),
     );

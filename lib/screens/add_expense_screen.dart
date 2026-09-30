@@ -39,118 +39,150 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+
+    final double boxHeight = isPortrait ? height * 0.06 : 20;
+
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 232, 242, 255),
       appBar: AppBar(
-        title: Text('Add Expense'),
-        backgroundColor: const Color.fromARGB(221, 150, 124, 124),
+        backgroundColor: Color(0xFF234E70),
+        foregroundColor: Colors.white,
+        title: Text(
+          'Add Expense',
+          style: TextStyle(fontSize: 23, fontWeight: FontWeight.w400),
+        ),
       ),
-      body: Center(
-        child: Form(
-          key: _addexpenseForm,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Textformfield(
-                controller: titleController,
-                label: 'Expense Title',
-                fieldtype: FieldType.text,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter expense title';
-                  }
-                  return null;
-                },
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Center(
+            child: Form(
+              key: _addexpenseForm,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Textformfield(
+                    controller: titleController,
+                    label: 'Expense Title',
+                    fieldtype: FieldType.text,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter expense title';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  SizedBox(height: boxHeight),
+
+                  Textformfield(
+                    controller: amountController,
+                    label: 'Amount (${widget.selectedCurrency})',
+                    fieldtype: FieldType.decimal,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter amount';
+                      }
+                      final amount = double.tryParse(value);
+                      if (amount == null || amount <= 0) {
+                        return 'Please enter valid amount';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  SizedBox(height: boxHeight),
+
+                  Textformfield(
+                    controller: categoryController,
+                    label: 'Select category',
+                    selectedValue: selectedCategory,
+                    items: categories,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCategory = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please select category';
+                      }
+                      return null;
+                    },
+                    fieldtype: FieldType.dropdown,
+                  ),
+
+                  SizedBox(height: boxHeight),
+
+                  Textformfield(
+                    controller: dateController,
+                    label: ' Select date',
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please select date';
+                      }
+                      return null;
+                    },
+                    fieldtype: FieldType.datetime,
+                    onTap: (date) {
+                      setState(() {
+                        selectedDate = date;
+                      });
+                    },
+                  ),
+
+                  SizedBox(height: boxHeight),
+
+                  Textformfield(
+                    controller: noteController,
+                    label: 'Add a note',
+                    fieldtype: FieldType.text,
+                  ),
+
+                  SizedBox(height: boxHeight),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF7567D9),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      if (_addexpenseForm.currentState!.validate()) {
+                        double enteredAmount = double.parse(
+                          amountController.text,
+                        );
+                        double amountInINR;
+
+                        if (widget.selectedCurrency == 'INR') {
+                          amountInINR = enteredAmount;
+                        } else {
+                          amountInINR = CurrencyHelper.convertToINR(
+                            amount: enteredAmount,
+                            exchangeRate: widget.exchangeRate,
+                          );
+                        }
+
+                        final expense = Expense(
+                          id: DateTime.now().millisecondsSinceEpoch,
+                          title: titleController.text,
+                          category: selectedCategory!,
+                          amount: amountInINR,
+                          date: selectedDate!,
+                          notes: noteController.text,
+                        );
+
+                        Navigator.pop(context, expense);
+                      }
+                    },
+                    child: Text('Add'),
+                  ),
+                ],
               ),
-
-              Textformfield(
-                controller: amountController,
-                label: 'Amount (${widget.selectedCurrency})',
-                fieldtype: FieldType.decimal,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter amount';
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount <= 0) {
-                    return 'Please enter valid amount';
-                  }
-                  return null;
-                },
-              ),
-
-              Textformfield(
-                controller: categoryController,
-                label: 'Select category',
-                selectedValue: selectedCategory,
-                items: categories,
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please select category';
-                  }
-                  return null;
-                },
-                fieldtype: FieldType.dropdown,
-              ),
-
-              Textformfield(
-                controller: dateController,
-                label: ' Select date',
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please select date';
-                  }
-                  return null;
-                },
-                fieldtype: FieldType.datetime,
-                onTap: (date) {
-                  setState(() {
-                    selectedDate = date;
-                  });
-                },
-              ),
-
-              Textformfield(
-                controller: noteController,
-                label: 'Add a note',
-                fieldtype: FieldType.text,
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  if (_addexpenseForm.currentState!.validate()) {
-                    double enteredAmount = double.parse(amountController.text);
-                    double amountInINR;
-
-                    if (widget.selectedCurrency == 'INR') {
-                      amountInINR = enteredAmount;
-                    } else {
-                      amountInINR = CurrencyHelper.convertToINR(
-                        amount: enteredAmount,
-                        exchangeRate: widget.exchangeRate,
-                      );
-                    }
-
-                    final expense = Expense(
-                      id: DateTime.now().millisecondsSinceEpoch,
-                      title: titleController.text,
-                      category: selectedCategory!,
-                      amount: amountInINR,
-                      date: selectedDate!,
-                      notes: noteController.text,
-                    );
-
-                    Navigator.pop(context, expense);
-                  }
-                },
-                child: Text('Add'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

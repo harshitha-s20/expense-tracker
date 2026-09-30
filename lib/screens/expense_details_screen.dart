@@ -23,116 +23,159 @@ class ExpenseDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final double boxHeight = isPortrait ? height * 0.5 : height * 0.55;
+    final double marginWidth = isPortrait ? width * 0.05 : width * 0.2;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Expense Detaits')),
-      body: Center(
-        child: Card(
-          margin: EdgeInsets.only(left: width * 0.05, right: width * 0.05),
-          child: SizedBox(
-            //width: width * 0.3,
-            height: height * 0.6,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  '$expense.title',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                Text(
-                  'Amount : ${CurrencyHelper.convert(amount: expense.amount, exchangeRate: exchangeRate).toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 15),
-                ),
-                Text(
-                  'Category : ${expense.category}',
-                  style: TextStyle(fontSize: 15),
-                ),
-                Text(
-                  'Date : ${expense.date.day}/'
-                  '${expense.date.month}/'
-                  '${expense.date.year}',
-                  style: TextStyle(fontSize: 15),
-                ),
-                Text(
-                  'Note : ${expense.notes ?? 'No notes'}',
-                  style: TextStyle(fontSize: 15),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        final updatedExpense = await Navigator.push<Expense>(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditExpenseScreen(
-                              expense: expense,
-                              selectedCurrency: selectedCurrency,
-                              exchangeRate: exchangeRate,
-                            ),
-                          ),
-                        );
-                        if (updatedExpense != null) {
-                          onUpdate(updatedExpense);
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [Icon(Icons.edit), Text('Edit')],
-                      ),
+      backgroundColor: Color.fromARGB(255, 232, 242, 255),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF234E70),
+        foregroundColor: Colors.white,
+        title: Text(
+          'Expense Detaits',
+          style: TextStyle(fontSize: 23, fontWeight: FontWeight.w400),
+        ),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Card(
+            elevation: 3,
+            color: Colors.white,
+            margin: EdgeInsets.only(left: marginWidth, right: marginWidth),
+            child: SizedBox(
+              height: boxHeight,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    '${expense.title}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF202020),
+                      fontSize: 21,
+                      fontWeight: FontWeight.bold,
                     ),
-
-                    SizedBox(width: width * 0.05),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('Delete Expense'),
-                              content: Text(
-                                'Are you sure you want to delete this expense?',
+                  ),
+                  Text(
+                    'Amount : ${CurrencyHelper.convert(amount: expense.amount, exchangeRate: exchangeRate).toStringAsFixed(2)}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF424242),
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    'Category : ${expense.category}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF424242),
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    'Date : ${expense.date.day}/'
+                    '${expense.date.month}/'
+                    '${expense.date.year}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF424242),
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    'Note : ${expense.notes ?? 'No notes'}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFF424242),
+                      fontSize: 16,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF7567D9),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () async {
+                          final updatedExpense = await Navigator.push<Expense>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditExpenseScreen(
+                                expense: expense,
+                                selectedCurrency: selectedCurrency,
+                                exchangeRate: exchangeRate,
                               ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text('Cancel'),
+                            ),
+                          );
+                          if (updatedExpense != null) {
+                            onUpdate(updatedExpense);
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [Icon(Icons.edit), Text('Edit')],
+                        ),
+                      ),
+
+                      SizedBox(width: width * 0.05),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Delete Expense'),
+                                content: Text(
+                                  'Are you sure you want to delete this expense?',
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    onDelete();
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Expense deleteed successfully',
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      onDelete();
+                                      Navigator.pop(context);
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Expense deleteed successfully',
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  child: Text('Delete'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
+                                      );
+                                    },
+                                    child: Text('Delete'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [Icon(Icons.delete), Text('Delete')],
+                        ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [Icon(Icons.delete), Text('Delete')],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

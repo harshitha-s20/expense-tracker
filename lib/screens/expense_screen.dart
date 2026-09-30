@@ -39,34 +39,104 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   void showFilterBottomSheet() {
     showModalBottomSheet(
       context: context,
+      //backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+
       builder: (context) {
         return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Filter by Category'),
-              ...categories.map((category) {
-                return RadioGroup(
-                  groupValue: selectedFilter,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedFilter = value;
-                      });
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: Column(
-                    children: [
-                      RadioListTile<String>(
-                        title: Text(category),
-                        value: category,
-                      ),
-                    ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(0xFFF9F7FF),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+            ),
+
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 2,
+                    width: 45,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade400,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                );
-              }),
-            ],
+
+                  SizedBox(height: 15),
+
+                  Text(
+                    'Filter by Category',
+                    style: TextStyle(
+                      color: Color(0xFF173B63),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  SizedBox(height: 10),
+
+                  ...categories.map((category) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 2),
+                      child: RadioGroup(
+                        groupValue: selectedFilter,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedFilter = value;
+                            });
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Column(
+                          children: [
+                            Material(
+                              color: Colors.transparent,
+                              child: RadioListTile<String>(
+                                title: Row(
+                                  children: [
+                                    Container(
+                                      height: 36,
+                                      width: 36,
+
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFD9F1F0),
+                                        shape: BoxShape.circle,
+                                      ),
+
+                                      child: Icon(
+                                        getCategoryIcon(category),
+                                        color: const Color(0xFF258C88),
+                                        size: 19,
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      category,
+                                      style: const TextStyle(
+                                        color: Color(0xFF263B53),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                value: category,
+                                activeColor: Color(0xFF7562D9),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -82,8 +152,14 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               .toList();
 
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 232, 242, 255),
       appBar: AppBar(
-        title: Text('Expense List'),
+        backgroundColor: Color.fromARGB(255, 232, 242, 255),
+        foregroundColor: Color(0xFF172B4D),
+        title: Text(
+          'Expense List',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         automaticallyImplyLeading: false,
         actions: [
           Padding(
@@ -96,46 +172,56 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         ],
       ),
       body: filteredExpenses.isEmpty
-          ? Center(
-              child: Text(
-                selectedFilter == 'All'
-                    ? 'No Expense added..'
-                    : 'No $selectedFilter expenses found.',
-                style: const TextStyle(fontSize: 15),
+          ? SafeArea(
+              child: Center(
+                child: Text(
+                  selectedFilter == 'All'
+                      ? 'No Expense added..'
+                      : 'No $selectedFilter expenses found.',
+                  style: const TextStyle(fontSize: 15),
+                ),
               ),
             )
-          : ListView.builder(
-              itemCount: filteredExpenses.length,
-              itemBuilder: (context, index) {
-                final expense = filteredExpenses[index];
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: StretchingOverscrollIndicator(
+                  axisDirection: AxisDirection.down,
+                  child: ListView.builder(
+                    itemCount: filteredExpenses.length,
+                    itemBuilder: (context, index) {
+                      final expense = filteredExpenses[index];
 
-                return InkWell(
-                  onTap: () async {
-                    final updatedExpense = await Navigator.push<Expense>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ExpenseDetailsScreen(
+                      return InkWell(
+                        onTap: () async {
+                          final updatedExpense = await Navigator.push<Expense>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ExpenseDetailsScreen(
+                                expense: expense,
+                                onDelete: () {
+                                  widget.onDelete(expense.id);
+                                },
+                                onUpdate: widget.onUpdate,
+                                selectedCurrency: widget.selectedCurrency,
+                                exchangeRate: widget.exchangeRate,
+                              ),
+                            ),
+                          );
+                          if (updatedExpense != null) {
+                            widget.onUpdate(updatedExpense);
+                          }
+                        },
+                        child: ExpenseCard(
                           expense: expense,
-                          onDelete: () {
-                            widget.onDelete(expense.id);
-                          },
-                          onUpdate: widget.onUpdate,
                           selectedCurrency: widget.selectedCurrency,
                           exchangeRate: widget.exchangeRate,
                         ),
-                      ),
-                    );
-                    if (updatedExpense != null) {
-                      widget.onUpdate(updatedExpense);
-                    }
-                  },
-                  child: ExpenseCard(
-                    expense: expense,
-                    selectedCurrency: widget.selectedCurrency,
-                    exchangeRate: widget.exchangeRate,
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ),
             ),
     );
   }

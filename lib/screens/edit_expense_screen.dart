@@ -91,54 +91,120 @@ class _EditExpenseScreen extends State<EditExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+
+    final double boxHeight = isPortrait ? height * 0.06 : 20;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Expense')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Textformfield(
-              controller: titleController,
-              label: 'Title',
-              fieldtype: FieldType.text,
+      backgroundColor: Color.fromARGB(255, 232, 242, 255),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF234E70),
+        foregroundColor: Colors.white,
+        title: Text('Edit Expense'),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Textformfield(
+                  controller: titleController,
+                  label: 'Title',
+                  fieldtype: FieldType.text,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter expense title';
+                    }
+                    return null;
+                  },
+                ),
+
+                SizedBox(height: boxHeight),
+
+                Textformfield(
+                  controller: amountController,
+                  label: 'Amount',
+                  fieldtype: FieldType.decimal,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter amount';
+                    }
+                    final amount = double.tryParse(value);
+                    if (amount == null || amount <= 0) {
+                      return 'Please enter valid amount';
+                    }
+                    return null;
+                  },
+                ),
+
+                SizedBox(height: boxHeight),
+
+                Textformfield(
+                  label: ' Select category',
+                  fieldtype: FieldType.dropdown,
+                  items: categories,
+                  selectedValue: selectedCategory,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedCategory = value;
+                      });
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please select category';
+                    }
+                    return null;
+                  },
+                ),
+
+                SizedBox(height: boxHeight),
+
+                Textformfield(
+                  controller: dateController,
+                  label: 'Select Date',
+                  fieldtype: FieldType.datetime,
+                  selectedDate: selectedDate,
+                  onTap: (date) {
+                    setState(() {
+                      selectedDate = date;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please select date';
+                    }
+                    return null;
+                  },
+                ),
+
+                SizedBox(height: boxHeight),
+
+                Textformfield(
+                  controller: notesController,
+                  label: 'Note',
+                  fieldtype: FieldType.text,
+                ),
+
+                SizedBox(height: boxHeight),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF7567D9),
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: saveChanges,
+                  child: Text('Save Changes'),
+                ),
+              ],
             ),
-            Textformfield(
-              controller: amountController,
-              label: 'Amount',
-              fieldtype: FieldType.decimal,
-            ),
-            Textformfield(
-              label: ' Select category',
-              fieldtype: FieldType.dropdown,
-              items: categories,
-              selectedValue: selectedCategory,
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    selectedCategory = value;
-                  });
-                }
-              },
-            ),
-            Textformfield(
-              controller: dateController,
-              label: 'Select Date',
-              fieldtype: FieldType.datetime,
-              selectedDate: selectedDate,
-              onTap: (date) {
-                setState(() {
-                  selectedDate = date;
-                });
-              },
-            ),
-            Textformfield(
-              controller: notesController,
-              label: 'Note',
-              fieldtype: FieldType.text,
-            ),
-            ElevatedButton(onPressed: saveChanges, child: Text('Save Changes')),
-          ],
+          ),
         ),
       ),
     );

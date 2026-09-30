@@ -16,12 +16,17 @@ class DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+
+    final boxWidth = isPortrait ? width * 0.35 : width * 0.21;
+    final boxHeight = isPortrait ? height * 0.14 : height * 0.25;
 
     return Card(
-      color: const Color.fromARGB(255, 248, 219, 229),
+      color: Color(0xFF4DB6AC),
       child: SizedBox(
-        width: width * 0.18,
-        height: height * 0.2,
+        width: boxWidth,
+        height: boxHeight,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -34,13 +39,20 @@ class DashboardCard extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
-                  color: Colors.blue[900],
+                  color: Color(0xFF12304A),
                 ),
               ),
+              Divider(),
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text('  ${value.toStringAsFixed(decimalplace)}'),
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    '  ${value.toStringAsFixed(decimalplace)}',
+                    style: TextStyle(
+                      color: Color(0xFF12304A),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],

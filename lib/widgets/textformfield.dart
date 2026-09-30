@@ -26,21 +26,62 @@ class Textformfield extends StatelessWidget {
     this.onTap,
   });
 
+  InputDecoration fieldDecoration({Widget? suffixIcon}) {
+    return InputDecoration(
+      hintText: label,
+      hintStyle: TextStyle(color: Color(0xFF5F6570), fontSize: 16),
+      suffixIcon: suffixIcon,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 78, 74, 74),
+          width: 1.8,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 78, 74, 74),
+          width: 1.8,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 78, 74, 74),
+          width: 1.8,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.red, width: 1.8),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.red, width: 1.8),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final double menuHeight = isPortrait ? 300 : 200;
 
     if (fieldtype == FieldType.dropdown) {
       return SizedBox(
         width: width * 0.5,
         child: DropdownButtonFormField<String>(
+          menuMaxHeight: menuHeight,
           initialValue: selectedValue,
-          decoration: InputDecoration(
-            hintText: label,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-          ),
+          decoration: fieldDecoration(),
+          dropdownColor: Color(0xFFF9F7FF),
+          icon: Icon(Icons.arrow_drop_down, color: Color(0xFF5F6570)),
+          style: const TextStyle(color: Color(0xFF263B53), fontSize: 16),
+
           items: items?.map((item) {
             return DropdownMenuItem<String>(value: item, child: Text(item));
           }).toList(),
@@ -56,12 +97,8 @@ class Textformfield extends StatelessWidget {
         child: TextFormField(
           controller: controller,
           validator: validator,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            hintText: label,
-            suffixIcon: Icon(Icons.calendar_month),
+          decoration: fieldDecoration(
+            suffixIcon: Icon(Icons.calendar_month, color: Color(0xFF4B5563)),
           ),
           readOnly: true,
 
@@ -98,12 +135,7 @@ class Textformfield extends StatelessWidget {
         validator: validator,
         keyboardType: keyboardType,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        decoration: InputDecoration(
-          hintText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
+        decoration: fieldDecoration(),
       ),
     );
   }

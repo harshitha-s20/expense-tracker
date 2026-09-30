@@ -20,23 +20,18 @@ class CurrencyService {
         );
       }
     } on TimeoutException {
-      throw Exception('Unable to retrieve exchange rate.');
+      throw Exception('Unable to retrieve exchange rate');
     } catch (e) {
       throw Exception('Unable to fetch exchange rate: $e');
     }
   }
 
-  //selected currency rate
   Future<double> getExchangeRate(String currency) async {
     final currencies = await getExchangeRates();
-    final matchingCurrencies = currencies
-        .where((item) => item.quote == currency)
-        .toList();
+    final currencyData = currencies.firstWhere(
+      (item) => item.quote == currency,
+    );
 
-    if (matchingCurrencies.isEmpty) {
-      throw Exception('Exchange rate not found for $currency');
-    }
-
-    return matchingCurrencies.first.rate;
+    return currencyData.rate;
   }
 }

@@ -85,12 +85,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expense Tracker'),
-        backgroundColor: const Color.fromARGB(221, 150, 124, 124),
+        title: Text(
+          'Expense Tracker',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+        ),
+        backgroundColor: Color(0xFF234E70),
+        foregroundColor: Colors.white,
         actions: [
-          Text('Currency: $selectedCurrency\t\t '),
+          Text(
+            'Currency: $selectedCurrency\t\t ',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           IconButton(
-            padding: EdgeInsets.only(right: 20),
+            padding: EdgeInsets.only(right: 15),
             onPressed: () {
               Navigator.push(
                 context,
@@ -111,6 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
       body: getCurrentScreen(),
 
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFF7567D9),
+        foregroundColor: Colors.white,
         onPressed: () async {
           final newExpense = await Navigator.push<Expense>(
             context,

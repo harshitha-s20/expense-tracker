@@ -98,64 +98,182 @@ class _SettingsScreen extends State<SettingsScreen> {
     double width = MediaQuery.sizeOf(context).width;
     double height = MediaQuery.sizeOf(context).height;
 
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+
+    final boxHeight = isPortrait ? height * 0.4 : height * 0.55;
+
+    final double menuLength = isPortrait ? 300 : 250;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
+      backgroundColor: Color.fromARGB(255, 232, 242, 255),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF234E70),
+        foregroundColor: Colors.white,
+        title: Text(
+          'Settings',
+          style: TextStyle(fontSize: 23, fontWeight: FontWeight.w400),
+        ),
+      ),
       body: Center(
-        child: SizedBox(
-          width: width * 0.5,
-          height: height * 0.4,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                'Currency',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-
-              if (isLoading) Center(child: CircularProgressIndicator()),
-
-              if (errorMessage != null)
-                Center(
-                  child: Column(
-                    children: [
-                      Text('Unable to retrieve exchange rate.'),
-                      SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: fetchCurrencies,
-                        child: Text('Retry'),
-                      ),
-                    ],
+        child: SingleChildScrollView(
+          child: SizedBox(
+            width: width * 0.5,
+            height: boxHeight,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  'Currency',
+                  style: TextStyle(
+                    color: Color(0xFF263B53),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
-              // if (!isLoading && errorMessage != null)
-              //   Text(errorMessage!, style: TextStyle(color: Colors.red)),
-              if (!isLoading && errorMessage == null)
-                DropdownButtonFormField<String>(
-                  // padding: EdgeInsets.only(left: width * 0.3),
-                  initialValue: selectedCurrencyN,
-                  decoration: InputDecoration(
+                if (isLoading)
+                  Center(
+                    child: CircularProgressIndicator(color: Color(0xFF7562D9)),
+                  ),
+
+                if (errorMessage != null)
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Unable to retrieve exchange rate.',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(color: Colors.red, fontSize: 14),
+                        ),
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: fetchCurrencies,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF8F3FF),
+                            foregroundColor: const Color(0xFF7562D9),
+                            elevation: 2,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 25,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: Text(
+                            'Retry',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                if (!isLoading && errorMessage == null)
+                  DropdownMenu<String>(
+                    menuHeight: menuLength,
                     hintText: 'Select Currency',
-                    border: OutlineInputBorder(),
+                    enableFilter: true,
+                    enableSearch: true,
+
+                    textStyle: const TextStyle(
+                      color: Color(0xFF263B53),
+                      fontSize: 16,
+                    ),
+
+                    trailingIcon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Color(0xFF5F6570),
+                    ),
+                    selectedTrailingIcon: const Icon(
+                      Icons.arrow_drop_up,
+                      color: Color(0xFF5F6570),
+                    ),
+                    // padding: EdgeInsets.only(left: width * 0.3),
+                    initialSelection: selectedCurrencyN,
+                    inputDecorationTheme: InputDecorationTheme(
+                      hintStyle: const TextStyle(
+                        color: Color(0xFF5F6570),
+                        fontSize: 16,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 17,
+                      ),
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF8A8A8A),
+                          width: 1.8,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF8A8A8A),
+                          width: 1.8,
+                        ),
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF28577A),
+                          width: 1.8,
+                        ),
+                      ),
+                    ),
+
+                    menuStyle: MenuStyle(
+                      backgroundColor: WidgetStatePropertyAll(
+                        Color(0xFFF9F7FF),
+                      ),
+                    ),
+
+                    dropdownMenuEntries: currencyList.map((currency) {
+                      return DropdownMenuEntry<String>(
+                        value: currency,
+                        label: currency,
+                      );
+                    }).toList(),
+                    onSelected: (value) {
+                      if (value != null) {
+                        selectCurrency(value);
+                      }
+                    },
                   ),
-                  items: currencyList.map((currency) {
-                    return DropdownMenuItem<String>(
-                      value: currency,
-                      child: Text(currency),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      selectCurrency(value);
-                    }
-                  },
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF7567D9),
+                    foregroundColor: Colors.white,
+                    elevation: 2,
+
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 25,
+                      vertical: 12,
+                    ),
+
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  onPressed: submitCurrency,
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ElevatedButton(onPressed: submitCurrency, child: Text('Submit')),
 
-              Text('Current Currency: ${selectedCurrencyN}'),
+                Text('Current Currency: $selectedCurrencyN'),
 
-              Text('Exchange Rate: ${selectedExchangeRate}'),
-            ],
+                Text('Exchange Rate: $selectedExchangeRate'),
+              ],
+            ),
           ),
         ),
       ),
